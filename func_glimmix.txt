@@ -1,0 +1,32 @@
+%let knots = 15;
+
+/************************************************************
+	treated group, Z=1;
+************************************************************/
+PROC IMPORT OUT=TMP
+	DATAFILE="data_Z1.csv" DBMS = CSV REPLACE;
+	GETNAMES = YES;
+RUN;
+
+ods output CovParms = cov_est SolutionR=coef_random;
+proc glimmix data=TMP;
+	model Y = X0 ltps1 / solution noint link=identity;
+		nloptions;
+		random S_1-S_&nknots / s G type=TOEP(1);
+run;
+
+
+/************************************************************
+	treated group, Z=0;
+************************************************************/
+PROC IMPORT OUT=TMP
+	DATAFILE="data_Z0.csv" DBMS = CSV REPLACE;
+	GETNAMES = YES;
+RUN;
+
+ods output CovParms = cov_est SolutionR=coef_random;
+proc glimmix data=TMP;
+	model Y = X0 ltps1 / solution noint link=identity;
+		nloptions;
+		random S_1-S_&nknots / s G type=TOEP(1);
+run;
